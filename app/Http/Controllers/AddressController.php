@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Province;
 use App\Models\District;
+use App\Models\Province;
 use App\Models\Ward;
-use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 class AddressController extends Controller
 {
@@ -19,13 +19,13 @@ class AddressController extends Controller
                     'id' => $province->id,
                     'term_id' => $province->id,
                     'name' => $province->name,
-                    'location' => 'province'
+                    'location' => 'province',
                 ];
             });
 
         return response()->json([
             'code' => 200,
-            'provinces' => $provinces
+            'provinces' => $provinces,
         ]);
     }
 
@@ -33,11 +33,11 @@ class AddressController extends Controller
     {
         $provinceId = $request->query('province_id');
         $query = District::select('id', 'name', 'province_id');
-        
+
         if ($provinceId) {
             $query->where('province_id', $provinceId);
         }
-        
+
         $districts = $query->get()
             ->map(function ($district) {
                 return [
@@ -45,13 +45,13 @@ class AddressController extends Controller
                     'term_id' => $district->id,
                     'name' => $district->name,
                     'province_id' => $district->province_id,
-                    'location' => 'district'
+                    'location' => 'district',
                 ];
             });
 
         return response()->json([
             'code' => 200,
-            'districts' => $districts
+            'districts' => $districts,
         ]);
     }
 
@@ -59,11 +59,11 @@ class AddressController extends Controller
     {
         $districtId = $request->query('district_id');
         $query = Ward::select('id', 'name', 'district_id');
-        
+
         if ($districtId) {
             $query->where('district_id', $districtId);
         }
-        
+
         $wards = $query->get()
             ->map(function ($ward) {
                 return [
@@ -71,13 +71,13 @@ class AddressController extends Controller
                     'term_id' => $ward->id,
                     'name' => $ward->name,
                     'district_id' => $ward->district_id,
-                    'location' => 'ward'
+                    'location' => 'ward',
                 ];
             });
 
         return response()->json([
             'code' => 200,
-            'wards' => $wards
+            'wards' => $wards,
         ]);
     }
-} 
+}

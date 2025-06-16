@@ -1,8 +1,7 @@
 <?php
 
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AddressController;
+use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
@@ -16,4 +15,4 @@ Route::prefix('address')->group(function () {
     Route::get('/provinces', [AddressController::class, 'getProvinces']);
     Route::get('/districts', [AddressController::class, 'getDistricts']);
     Route::get('/wards', [AddressController::class, 'getWards']);
-}); 
+});

@@ -330,12 +330,12 @@ return [
         [
             'text' => 'Quản lý người dùng',
             'url' => 'admin/users',
-            'icon' => 'fas fa-fw fa-user'
+            'icon' => 'fas fa-fw fa-user',
         ],
         [
             'text' => 'Quản lý bài viết',
             'url' => 'admin/posts',
-            'icon' => 'fas fa-fw fa-podcast'
+            'icon' => 'fas fa-fw fa-podcast',
         ],
         ['header' => 'account_settings'],
         [

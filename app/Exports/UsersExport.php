@@ -10,6 +10,7 @@ use Maatwebsite\Excel\Concerns\WithMapping;
 class UsersExport implements FromCollection, WithHeadings, WithMapping
 {
     protected $keyword;
+
     protected $role;
 
     public function __construct($keyword = null, $role = null)
@@ -43,7 +44,7 @@ class UsersExport implements FromCollection, WithHeadings, WithMapping
             'Số điện thoại',
             'Vai trò',
             'Ngày tạo',
-            'Trạng thái'
+            'Trạng thái',
         ];
     }
 
@@ -56,7 +57,7 @@ class UsersExport implements FromCollection, WithHeadings, WithMapping
             $user->phone,
             ucfirst($user->role),
             $user->created_at->format('d/m/Y H:i'),
-            $user->trashed() ? 'Đã xóa' : 'Hoạt động'
+            $user->trashed() ? 'Đã xóa' : 'Hoạt động',
         ];
     }
-} 
+}

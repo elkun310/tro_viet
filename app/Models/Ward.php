@@ -10,7 +10,7 @@ class Ward extends Model
     protected $fillable = [
         'name',
         'code',
-        'district_id'
+        'district_id',
     ];
 
     public function district(): BelongsTo
@@ -22,4 +22,4 @@ class Ward extends Model
     {
         return $this->hasMany(Post::class);
     }
-} 
+}

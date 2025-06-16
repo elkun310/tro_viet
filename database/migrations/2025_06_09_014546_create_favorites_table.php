@@ -9,7 +9,8 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-    public function up(): void {
+    public function up(): void
+    {
         Schema::create('favorites', function (Blueprint $table) {
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade')->comment('Người dùng yêu thích');
             $table->foreignId('post_id')->constrained('posts')->onDelete('cascade')->comment('Bài đăng được yêu thích');
@@ -18,7 +19,8 @@ return new class extends Migration
         });
     }
 
-    public function down(): void {
+    public function down(): void
+    {
         Schema::dropIfExists('favorites');
     }
 };

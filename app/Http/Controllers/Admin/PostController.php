@@ -3,13 +3,13 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use App\Models\Post;
 use App\Models\Category;
 use App\Models\Feature;
+use App\Models\Post;
+use App\Models\PostImage;
 use App\Models\Province;
 use App\Models\Ward;
-use App\Models\PostImage;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
@@ -21,6 +21,7 @@ class PostController extends Controller
     public function index()
     {
         $posts = Post::with(['category', 'ward.district.province'])->latest()->paginate(10);
+
         return view('admin.posts.index', compact('posts'));
     }
 
@@ -83,7 +84,8 @@ class PostController extends Controller
             return redirect()->route('admin.posts.index')->with('success', 'Tạo bài đăng thành công');
         } catch (\Throwable $e) {
             DB::rollBack();
-            return back()->withErrors(['error' => 'Lỗi: ' . $e->getMessage()])->withInput();
+
+            return back()->withErrors(['error' => 'Lỗi: '.$e->getMessage()])->withInput();
         }
     }
 
@@ -93,6 +95,7 @@ class PostController extends Controller
     public function show(Post $post)
     {
         $post->load(['user', 'category', 'ward.district.province', 'features']);
+
         return view('admin.posts.show', compact('post'));
     }
 
@@ -118,7 +121,7 @@ class PostController extends Controller
     {
         $validated = $request->validate([
             'title' => 'required|string|max:255',
-            'code' => 'required|unique:posts,code,' . $post->id,
+            'code' => 'required|unique:posts,code,'.$post->id,
             'description' => 'required',
             'price' => 'required|integer',
             'area' => 'required|numeric',
@@ -146,11 +149,13 @@ class PostController extends Controller
             }
 
             DB::commit();
+
             return redirect()->route('admin.posts.index')->with('success', 'Cập nhật bài đăng thành công');
         } catch (\Throwable $e) {
             DB::rollBack();
             report($e->getMessage());
-            return back()->withErrors(['error' => 'Lỗi: ' . $e->getMessage()]);
+
+            return back()->withErrors(['error' => 'Lỗi: '.$e->getMessage()]);
         }
     }
 
@@ -160,6 +165,7 @@ class PostController extends Controller
     public function destroy(Post $post)
     {
         $post->delete();
+
         return redirect()->route('admin.posts.index')->with('success', 'Đã xoá bài đăng');
     }
 
@@ -175,7 +181,7 @@ class PostController extends Controller
         return response()->json([
             'success' => true,
             'path' => $path,
-            'url' => asset('storage/' . $path), // Đường dẫn public để frontend preview luôn
+            'url' => asset('storage/'.$path), // Đường dẫn public để frontend preview luôn
         ]);
     }
 
