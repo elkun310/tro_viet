@@ -5,7 +5,12 @@
 @stop
 
 @section('content')
-    <form action="{{ route('admin.posts.store') }}" method="POST">
+    @if ($errors->has('error'))
+        <div class="alert alert-danger">
+            {{ $errors->first('error') }}
+        </div>
+    @endif
+    <form action="{{ route('admin.posts.store') }}" method="POST" id="post-form">
         @csrf
 
         <div class="form-group mb-3">
@@ -37,6 +42,27 @@
                 @endforeach
             </select>
         </div>
+
+        <div class="form-group mb-3">
+            <label>Đặc điểm nổi bật</label>
+            <div>
+                @foreach ($features as $feature)
+                    <div class="form-check form-check-inline">
+                        <input type="checkbox" name="features[]" id="feature_{{ $feature->id }}"
+                            value="{{ $feature->id }}" class="form-check-input"
+                            {{ (is_array(old('features')) && in_array($feature->id, old('features'))) ||
+                            (isset($post) && $post->features->contains($feature->id))
+                                ? 'checked'
+                                : '' }}>
+                        <label class="form-check-label" for="feature_{{ $feature->id }}">{{ $feature->name }}</label>
+                    </div>
+                @endforeach
+            </div>
+            @error('features')
+                <span class="text-danger">{{ $message }}</span>
+            @enderror
+        </div>
+
 
         <div class="form-group mb-3">
             <label for="description">Mô tả chi tiết</label>
@@ -85,6 +111,11 @@
             </select>
         </div>
 
+        <div class="form-group mb-3">
+            <label>Hình ảnh</label>
+            <div class="dropzone" id="post-dropzone"></div>
+        </div>
+
 
         <div class="form-check mb-3">
             <input type="checkbox" name="is_featured" id="is_featured" class="form-check-input"
@@ -101,25 +132,14 @@
             </select>
         </div>
 
-        <div class="form-group mb-3">
-            <label>Đặc điểm nổi bật</label>
-            <div>
-                @foreach ($features as $feature)
-                    <div class="form-check form-check-inline">
-                        <input type="checkbox" name="features[]" id="feature_{{ $feature->id }}"
-                            value="{{ $feature->id }}" class="form-check-input"
-                            {{ is_array(old('features')) && in_array($feature->id, old('features')) ? 'checked' : '' }}>
-                        <label class="form-check-label" for="feature_{{ $feature->id }}">{{ $feature->name }}</label>
-                    </div>
-                @endforeach
-            </div>
-        </div>
-
         <button type="submit" class="btn btn-success">Lưu</button>
         <a href="{{ route('admin.posts.index') }}" class="btn btn-secondary">Hủy</a>
     </form>
 @stop
 @push('js')
+    <link rel="stylesheet" href="{{ asset('vendor/dropzone/dropzone.min.css') }}" />
+    <script src="{{ asset('vendor/dropzone/dropzone.min.js') }}"></script>
+
     <script>
         $(document).ready(function() {
             function loadDistricts(provinceId, selectedDistrictId = null) {
@@ -198,6 +218,36 @@
                 // sẽ được trigger ở loadDistricts
                 loadWards(oldDistrict, oldWard);
             }
+        });
+    </script>
+
+    <script>
+        Dropzone.autoDiscover = false;
+
+        const uploadedImages = [];
+
+        const dropzone = new Dropzone("#post-dropzone", {
+            url: "{{ route('admin.posts.upload-image') }}",
+            paramName: "file",
+            maxFilesize: 2, // MB
+            acceptedFiles: 'image/*',
+            headers: {
+                'X-CSRF-TOKEN': "{{ csrf_token() }}"
+            },
+            success: function(file, response) {
+                uploadedImages.push(response.path);
+            }
+        });
+
+        // Thêm ảnh đã upload vào form
+        $('#post-form').on('submit', function() {
+            uploadedImages.forEach(path => {
+                $('<input>').attr({
+                    type: 'hidden',
+                    name: 'images[]',
+                    value: path
+                }).appendTo('#post-form');
+            });
         });
     </script>
 @endpush
