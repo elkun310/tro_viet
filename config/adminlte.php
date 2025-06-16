@@ -332,6 +332,11 @@ return [
             'url' => 'admin/users',
             'icon' => 'fas fa-fw fa-user'
         ],
+        [
+            'text' => 'Quản lý bài viết',
+            'url' => 'admin/posts',
+            'icon' => 'fas fa-fw fa-podcast'
+        ],
         ['header' => 'account_settings'],
         [
             'text' => 'profile',

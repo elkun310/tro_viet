@@ -8,8 +8,10 @@ use App\Models\Post;
 use App\Models\Category;
 use App\Models\Feature;
 use App\Models\Province;
-use App\Models\District;
 use App\Models\Ward;
+use App\Models\PostImage;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class PostController extends Controller
 {
@@ -50,16 +52,39 @@ class PostController extends Controller
             'ward_id' => 'required|exists:wards,id',
             'category_id' => 'nullable|exists:categories,id',
             'features' => 'nullable|array',
-            'status' => 'nullable'
+            'status' => 'nullable',
+            'images' => 'array',
+            'features' => 'array',
+            'features.*' => 'exists:features,id',
         ]);
 
-        $post = Post::create($validated + [
-            'user_id' => auth()->id,
-        ]);
+        DB::beginTransaction();
 
-        $post->features()->sync($request->features ?? []);
+        try {
 
-        return redirect()->route('admin.posts.index')->with('success', 'Tạo bài đăng thành công');
+            $post = Post::create($validated + [
+                'user_id' => auth()->id(),
+            ]);
+
+            if ($request->has('features')) {
+                $post->features()->sync($request->features);
+            } else {
+                $post->features()->sync([]);
+            }
+
+            if ($request->filled('images')) {
+                foreach ($request->images as $imagePath) {
+                    $post->images()->create(['url' => $imagePath]);
+                }
+            }
+
+            DB::commit();
+
+            return redirect()->route('admin.posts.index')->with('success', 'Tạo bài đăng thành công');
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            return back()->withErrors(['error' => 'Lỗi: ' . $e->getMessage()])->withInput();
+        }
     }
 
     /**
@@ -77,10 +102,9 @@ class PostController extends Controller
     public function edit(Post $post)
     {
         return view('admin.posts.edit', [
-            'post' => $post->load('features'),
+            'post' => $post->load(['features', 'images']),
             'categories' => Category::all(),
             'features' => Feature::all(),
-            'wards' => Ward::all(),
             'provinces' => Province::all(),
             'selectedProvince' => optional($post->ward->district->province)->id,
             'selectedDistrict' => optional($post->ward->district)->id,
@@ -101,15 +125,33 @@ class PostController extends Controller
             'address' => 'required|string',
             'ward_id' => 'required|exists:wards,id',
             'category_id' => 'nullable|exists:categories,id',
-            'features' => 'nullable|array',
-            'status' => 'nullable'
+            'features' => 'array',
+            'features.*' => 'exists:features,id',
         ]);
 
-        $post->update($validated);
+        DB::beginTransaction();
 
-        $post->features()->sync($request->features ?? []);
+        try {
+            $post->update($validated);
+            if ($request->has('features')) {
+                $post->features()->sync($request->features);
+            } else {
+                $post->features()->sync([]);
+            }
 
-        return redirect()->route('admin.posts.index')->with('success', 'Cập nhật thành công');
+            if ($request->filled('new_images')) {
+                foreach ($request->new_images as $path) {
+                    $post->images()->create(['url' => $path]);
+                }
+            }
+
+            DB::commit();
+            return redirect()->route('admin.posts.index')->with('success', 'Cập nhật bài đăng thành công');
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            report($e->getMessage());
+            return back()->withErrors(['error' => 'Lỗi: ' . $e->getMessage()]);
+        }
     }
 
     /**
@@ -119,5 +161,37 @@ class PostController extends Controller
     {
         $post->delete();
         return redirect()->route('admin.posts.index')->with('success', 'Đã xoá bài đăng');
+    }
+
+    public function uploadImage(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
+        ]);
+
+        $file = $request->file('file');
+        $path = $file->store('posts', 'public');
+
+        return response()->json([
+            'success' => true,
+            'path' => $path,
+            'url' => asset('storage/' . $path), // Đường dẫn public để frontend preview luôn
+        ]);
+    }
+
+    public function deleteImage(Request $request)
+    {
+        $request->validate([
+            'id' => 'required|exists:post_images,id',
+        ]);
+
+        $image = PostImage::findOrFail($request->id);
+
+        // Optionally: xóa file khỏi storage
+        Storage::disk('public')->delete($image->url);
+
+        $image->forceDelete();
+
+        return response()->json(['success' => true]);
     }
 }

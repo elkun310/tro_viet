@@ -31,5 +31,7 @@ Route::prefix('admin')->middleware(['auth', 'role:admin'])->name('admin.')->grou
     Route::post('/users/{id}/restore', [UserController::class, 'restore'])->name('users.restore');
     Route::resource('users', UserController::class)->names('users');
 
+    Route::post('posts/upload-image', [PostController::class, 'uploadImage'])->name('posts.upload-image');
+    Route::post('posts/delete-image', [PostController::class, 'deleteImage'])->name('posts.delete-image');
     Route::resource('posts', PostController::class);
 });

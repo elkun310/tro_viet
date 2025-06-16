@@ -5,7 +5,12 @@
 @stop
 
 @section('content')
-    <form action="{{ route('admin.posts.update', $post) }}" method="POST">
+    @if ($errors->has('error'))
+        <div class="alert alert-danger">
+            {{ $errors->first('error') }}
+        </div>
+    @endif
+    <form action="{{ route('admin.posts.update', $post) }}" method="POST" id="post-form">
         @csrf
         @method('PUT')
 
@@ -38,6 +43,26 @@
                     </option>
                 @endforeach
             </select>
+        </div>
+
+        <div class="form-group mb-3">
+            <label>Đặc điểm nổi bật</label>
+            <div>
+                @foreach ($features as $feature)
+                    <div class="form-check form-check-inline">
+                        <input type="checkbox" name="features[]" id="feature_{{ $feature->id }}"
+                            value="{{ $feature->id }}" class="form-check-input"
+                            {{ (is_array(old('features')) && in_array($feature->id, old('features'))) ||
+                            (isset($post) && $post->features->contains($feature->id))
+                                ? 'checked'
+                                : '' }}>
+                        <label class="form-check-label" for="feature_{{ $feature->id }}">{{ $feature->name }}</label>
+                    </div>
+                @endforeach
+            </div>
+            @error('features')
+                <span class="text-danger">{{ $message }}</span>
+            @enderror
         </div>
 
         <div class="form-group mb-3">
@@ -108,20 +133,27 @@
         </div>
 
         <div class="form-group mb-3">
-            <label>Đặc điểm nổi bật</label>
-            <div>
+            <label>Hình ảnh</label>
+            <div class="dropzone" id="post-dropzone"></div>
+        </div>
+
+        <div class="image-preview-container d-flex flex-wrap gap-3">
+            @foreach ($post->images as $image)
                 @php
-                    $postFeatureIds = old('features', $post->features->pluck('id')->toArray());
+                    $imageUrl = asset('storage/' . ltrim($image->url, '/'));
                 @endphp
-                @foreach ($features as $feature)
-                    <div class="form-check form-check-inline">
-                        <input type="checkbox" name="features[]" id="feature_{{ $feature->id }}"
-                            value="{{ $feature->id }}" class="form-check-input"
-                            {{ in_array($feature->id, $postFeatureIds) ? 'checked' : '' }}>
-                        <label class="form-check-label" for="feature_{{ $feature->id }}">{{ $feature->name }}</label>
+                <div class="image-preview text-center border rounded p-2 d-flex flex-column align-items-center"
+                    data-id="{{ $image->id }}" style="width: 160px; min-height: 200px;">
+                    <div class="image-wrapper mb-2"
+                        style="height: 120px; width: 100%; display: flex; align-items: center; justify-content: center; overflow: hidden;">
+                        <img src="{{ $imageUrl }}" class="img-fluid rounded"
+                            style="max-height: 120px; object-fit: cover;"
+                            onerror="this.style.display='none'; console.error('Image load error: {{ $imageUrl }}')">
                     </div>
-                @endforeach
-            </div>
+                    <button type="button" class="btn btn-danger btn-sm remove-image mt-auto"
+                        data-id="{{ $image->id }}">Xoá</button>
+                </div>
+            @endforeach
         </div>
 
         <button type="submit" class="btn btn-success">Cập nhật</button>
@@ -130,6 +162,61 @@
 @stop
 
 @push('js')
+    <link rel="stylesheet" href="{{ asset('vendor/dropzone/dropzone.min.css') }}" />
+    <script src="{{ asset('vendor/dropzone/dropzone.min.js') }}"></script>
+
+    <script>
+        Dropzone.autoDiscover = false;
+        const uploadedImages = [];
+
+        const dropzone = new Dropzone("#post-dropzone", {
+            url: "{{ route('admin.posts.upload-image') }}",
+            paramName: "file",
+            maxFilesize: 2,
+            acceptedFiles: 'image/*',
+            headers: {
+                'X-CSRF-TOKEN': "{{ csrf_token() }}"
+            },
+            success: function(file, response) {
+                uploadedImages.push(response.path);
+            }
+        });
+
+        // Thêm ảnh mới vào form
+        $('#post-form').on('submit', function() {
+            uploadedImages.forEach(path => {
+                $('<input>').attr({
+                    type: 'hidden',
+                    name: 'new_images[]',
+                    value: path
+                }).appendTo('#post-form');
+            });
+        });
+
+        // Xử lý xóa ảnh
+        $('.remove-image').on('click', function() {
+            const imageId = $(this).data('id');
+            const container = $(this).closest('.image-preview');
+
+            if (confirm('Bạn có chắc muốn xoá ảnh này không?')) {
+                $.ajax({
+                    url: '{{ route('admin.posts.delete-image') }}',
+                    method: 'POST',
+                    data: {
+                        _token: '{{ csrf_token() }}',
+                        id: imageId
+                    },
+                    success: function() {
+                        container.remove();
+                    },
+                    error: function() {
+                        alert('Lỗi xoá ảnh');
+                    }
+                });
+            }
+        });
+    </script>
+
     <script>
         $(document).ready(function() {
             function loadDistricts(provinceId, selectedDistrictId = null) {
