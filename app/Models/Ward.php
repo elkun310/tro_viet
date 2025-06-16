@@ -17,4 +17,9 @@ class Ward extends Model
     {
         return $this->belongsTo(District::class);
     }
+
+    public function posts()
+    {
+        return $this->hasMany(Post::class);
+    }
 } 
