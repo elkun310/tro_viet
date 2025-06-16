@@ -11,7 +11,7 @@ class District extends Model
     protected $fillable = [
         'name',
         'code',
-        'province_id'
+        'province_id',
     ];
 
     public function province(): BelongsTo
@@ -23,4 +23,4 @@ class District extends Model
     {
         return $this->hasMany(Ward::class);
     }
-} 
+}

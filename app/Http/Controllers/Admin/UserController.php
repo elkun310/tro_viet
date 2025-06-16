@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Exports\UsersExport;
 use App\Http\Controllers\Controller;
 use App\Models\User;
-use App\Exports\UsersExport;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
 
@@ -28,6 +28,7 @@ class UserController extends Controller
             })
             ->orderByDesc('id')
             ->paginate(config('constants.PAGINATE'));
+
         return view('admin.users.index', compact('users'));
     }
 
@@ -70,7 +71,7 @@ class UserController extends Controller
     {
         $data = $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email,' . $user->id,
+            'email' => 'required|email|unique:users,email,'.$user->id,
             'password' => 'nullable|string|min:6|confirmed',
             'role' => 'required|in:admin,host,user',
         ]);
@@ -90,6 +91,7 @@ class UserController extends Controller
     public function destroy(User $user)
     {
         $user->delete();
+
         return redirect()->route('admin.users.index')->with('success', 'Đã xoá người dùng');
     }
 
@@ -97,6 +99,7 @@ class UserController extends Controller
     {
         $user = User::onlyTrashed()->findOrFail($id);
         $user->restore();
+
         return redirect()->route('admin.users.index')->with('success', 'Khôi phục thành công');
     }
 
@@ -107,7 +110,7 @@ class UserController extends Controller
     {
         $keyword = $request->input('keyword');
         $role = $request->input('role');
-        
+
         return Excel::download(new UsersExport($keyword, $role), 'danh-sach-nguoi-dung.xlsx');
     }
 

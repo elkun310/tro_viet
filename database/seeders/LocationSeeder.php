@@ -10,8 +10,9 @@ class LocationSeeder extends Seeder
     public function run(): void
     {
         $path = database_path('data/vietnam-provinces.json');
-        if (!file_exists($path)) {
+        if (! file_exists($path)) {
             $this->command->error("File JSON không tìm thấy: {$path}");
+
             return;
         }
 
@@ -43,6 +44,6 @@ class LocationSeeder extends Seeder
             }
         }
 
-        $this->command->info("✅ Đã seed provinces (".count($data)."), districts & wards thành công.");
+        $this->command->info('✅ Đã seed provinces ('.count($data).'), districts & wards thành công.');
     }
 }

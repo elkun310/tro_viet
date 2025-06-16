@@ -9,8 +9,8 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-    
-    public function up(): void {
+    public function up(): void
+    {
         Schema::create('categories', function (Blueprint $table) {
             $table->id()->comment('Khóa chính');
             $table->string('name')->comment('Phòng trọ, CC Mini, Chung cư,...');
@@ -18,7 +18,6 @@ return new class extends Migration
             $table->softDeletes()->comment('Thời điểm xoá mềm, NULL nếu chưa xoá');
         });
     }
-
 
     /**
      * Reverse the migrations.

@@ -9,7 +9,8 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-    public function up(): void {
+    public function up(): void
+    {
         Schema::create('districts', function (Blueprint $table) {
             $table->id()->comment('Khóa chính');
             $table->string('name')->comment('Tên quận/huyện');
@@ -19,7 +20,8 @@ return new class extends Migration
         });
     }
 
-    public function down(): void {
+    public function down(): void
+    {
         Schema::dropIfExists('districts');
     }
 };

@@ -9,11 +9,11 @@ class Province extends Model
 {
     protected $fillable = [
         'name',
-        'code'
+        'code',
     ];
 
     public function districts(): HasMany
     {
         return $this->hasMany(District::class);
     }
-} 
+}

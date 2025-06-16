@@ -23,6 +23,7 @@ class AuthController extends Controller
             }
 
             Auth::logout();
+
             return back()->withErrors(['email' => 'Bạn không có quyền admin.']);
         }
 

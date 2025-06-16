@@ -4,9 +4,9 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Illuminate\Database\Eloquent\SoftDeletes;
 
 class User extends Authenticatable
 {
@@ -14,7 +14,9 @@ class User extends Authenticatable
     use HasFactory, Notifiable, SoftDeletes;
 
     const ROLE_ADMIN = 'admin';
+
     const ROLE_HOST = 'host';
+
     const ROLE_USER = 'user';
 
     /**
@@ -27,7 +29,7 @@ class User extends Authenticatable
         'email',
         'password',
         'phone',
-        'role'
+        'role',
     ];
 
     /**
