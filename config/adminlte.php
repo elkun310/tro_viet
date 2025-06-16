@@ -328,7 +328,7 @@ return [
             'label_color' => 'success',
         ],
         [
-            'text' => 'User',
+            'text' => 'Quản lý người dùng',
             'url' => 'admin/users',
             'icon' => 'fas fa-fw fa-user'
         ],

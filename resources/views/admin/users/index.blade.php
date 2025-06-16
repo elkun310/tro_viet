@@ -7,7 +7,34 @@
 @endsection
 
 @section('content')
-    <a href="{{ route('admin.users.create') }}" class="btn btn-primary mb-3">+ Thêm người dùng</a>
+    <div class="d-flex justify-content-between mb-3">
+        <a href="{{ route('admin.users.create') }}" class="btn btn-primary">+ Thêm người dùng</a>
+        <a href="{{ route('admin.users.export', request()->query()) }}" class="btn btn-success">
+            <i class="fas fa-file-excel"></i> Xuất Excel
+        </a>
+    </div>
+
+    <form method="GET" action="{{ route('admin.users.index') }}" class="mb-3">
+        <div class="form-row">
+            <div class="col-md-4 mb-2">
+                <input type="text" name="keyword" class="form-control" placeholder="Tìm theo tên hoặc email"
+                    value="{{ request('keyword') }}">
+            </div>
+
+            <div class="col-md-3 mb-2">
+                <select name="role" class="form-control">
+                    <option value="">-- Tất cả vai trò --</option>
+                    <option value="admin" {{ request('role') == 'admin' ? 'selected' : '' }}>Admin</option>
+                    <option value="host" {{ request('role') == 'host' ? 'selected' : '' }}>Host</option>
+                    <option value="user" {{ request('role') == 'user' ? 'selected' : '' }}>User</option>
+                </select>
+            </div>
+
+            <div class="col-md-2 mb-2">
+                <button type="submit" class="btn btn-primary btn-block">Tìm kiếm</button>
+            </div>
+        </div>
+    </form>
 
     @if (session('success'))
         <x-adminlte-alert theme="success" style="display: flex">{{ session('success') }}</x-adminlte-alert>
@@ -38,6 +65,9 @@
                                 <button class="btn btn-success btn-sm">Khôi phục</button>
                             </form>
                         @else
+                            <a href="{{ route('admin.users.show', $user) }}" class="btn btn-info btn-sm">
+                                <i class="fas fa-eye"></i> Xem
+                            </a>
                             <a href="{{ route('admin.users.edit', $user) }}" class="btn btn-warning btn-sm">Sửa</a>
                             <form action="{{ route('admin.users.destroy', $user) }}" method="POST"
                                 style="display:inline-block;">
@@ -47,11 +77,10 @@
                             </form>
                         @endif
                     </td>
-
                 </tr>
             @endforeach
         </tbody>
     </table>
 
-    {{ $users->links('pagination::bootstrap-4') }}
+    {{ $users->appends(request()->query())->links('pagination::bootstrap-4') }}
 @endsection

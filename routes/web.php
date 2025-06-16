@@ -26,6 +26,7 @@ Route::prefix('admin')->middleware(['auth', 'role:admin'])->name('admin.')->grou
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     // CRUD user
-    Route::resource('users', UserController::class)->names('users');
+    Route::get('/users/export', [UserController::class, 'export'])->name('users.export');
     Route::post('/users/{id}/restore', [UserController::class, 'restore'])->name('users.restore');
+    Route::resource('users', UserController::class)->names('users');
 });

@@ -4,14 +4,30 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Exports\UsersExport;
 use Illuminate\Http\Request;
+use Maatwebsite\Excel\Facades\Excel;
 
 class UserController extends Controller
 {
     // Danh sách người dùng
-    public function index()
+    public function index(Request $request)
     {
-        $users = User::withTrashed()->latest()->paginate(config('constants.PAGINATE'));
+        $keyword = $request->input('keyword');
+        $role = $request->input('role');
+
+        $users = User::withTrashed()->latest()
+            ->when($keyword, function ($query, $keyword) {
+                $query->where(function ($q) use ($keyword) {
+                    $q->where('name', 'like', "%{$keyword}%")
+                        ->orWhere('email', 'like', "%{$keyword}%");
+                });
+            })
+            ->when($role, function ($query, $role) {
+                $query->where('role', $role);
+            })
+            ->orderByDesc('id')
+            ->paginate(config('constants.PAGINATE'));
         return view('admin.users.index', compact('users'));
     }
 
@@ -37,6 +53,12 @@ class UserController extends Controller
         return redirect()->route('admin.users.index')->with('success', 'Tạo người dùng thành công');
     }
 
+    // Hiển thị chi tiết người dùng
+    public function show(User $user)
+    {
+        return view('admin.users.show', compact('user'));
+    }
+
     // Hiển thị form chỉnh sửa
     public function edit(User $user)
     {
@@ -52,7 +74,6 @@ class UserController extends Controller
             'password' => 'nullable|string|min:6|confirmed',
             'role' => 'required|in:admin,host,user',
         ]);
-
 
         if ($data['password']) {
             $data['password'] = bcrypt($data['password']);
@@ -77,5 +98,26 @@ class UserController extends Controller
         $user = User::onlyTrashed()->findOrFail($id);
         $user->restore();
         return redirect()->route('admin.users.index')->with('success', 'Khôi phục thành công');
+    }
+
+    /**
+     * Export users to Excel
+     */
+    public function export(Request $request)
+    {
+        $keyword = $request->input('keyword');
+        $role = $request->input('role');
+        
+        return Excel::download(new UsersExport($keyword, $role), 'danh-sach-nguoi-dung.xlsx');
+    }
+
+    /**
+     * Get the route key for the model.
+     *
+     * @return string
+     */
+    public function getRouteKeyName()
+    {
+        return 'id';
     }
 }
