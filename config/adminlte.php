@@ -334,8 +334,17 @@ return [
         ],
         [
             'text' => 'Quản lý bài viết',
-            'url' => 'admin/posts',
             'icon' => 'fas fa-fw fa-podcast',
+            'submenu' => [
+                [
+                    'text' => 'Danh sách bài viết',
+                    'url' => 'admin/posts',
+                ],
+                [
+                    'text' => 'Tạo bài viết',
+                    'url' => 'admin/posts/create',
+                ],
+            ],
         ],
         ['header' => 'account_settings'],
         [

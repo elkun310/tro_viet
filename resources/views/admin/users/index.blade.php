@@ -37,7 +37,7 @@
     </form>
 
     @if (session('success'))
-        <x-adminlte-alert theme="success" style="display: flex">{{ session('success') }}</x-adminlte-alert>
+        <x-adminlte-alert theme="success" dismissable>{{ session('success') }}</x-adminlte-alert>
     @endif
 
     <table class="table table-bordered">
