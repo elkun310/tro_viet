@@ -27,7 +27,13 @@ class UserController extends Controller
                 $query->where('role', $role);
             })
             ->orderByDesc('id')
-            ->paginate(config('constants.PAGINATE'));
+            ->paginate(config('constants.PAGINATE'), ['*'], 'page');
+
+        if ($request->has('page')) {
+            if (intval($request->get('page')) > $users->lastPage() && $users->lastPage() > 0) {
+                return redirect($users->url(1))->withInput();
+            }
+        }
 
         return view('admin.users.index', compact('users'));
     }

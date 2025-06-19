@@ -15,15 +15,6 @@
         @method('PUT')
 
         <div class="form-group mb-3">
-            <label for="code">Mã bài đăng</label>
-            <input type="text" name="code" id="code" class="form-control @error('code') is-invalid @enderror"
-                value="{{ old('code', $post->code) }}">
-            @error('code')
-                <span class="text-danger">{{ $message }}</span>
-            @enderror
-        </div>
-
-        <div class="form-group mb-3">
             <label for="title">Tiêu đề</label>
             <input type="text" name="title" id="title" class="form-control @error('title') is-invalid @enderror"
                 value="{{ old('title', $post->title) }}">

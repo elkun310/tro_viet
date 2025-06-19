@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Str;
 
 class Post extends Model
 {
@@ -23,6 +24,22 @@ class Post extends Model
         'is_featured',
         'status',
     ];
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($post) {
+            if (empty($post->code)) {
+                $post->code = self::generateUniqueCode();
+            }
+        });
+
+        static::deleting(function ($post) {
+            $post->images()->delete();
+            $post->features()->detach();
+        });
+    }
 
     // 🔗 User đăng bài
     public function user()
@@ -64,5 +81,15 @@ class Post extends Model
     public function features()
     {
         return $this->belongsToMany(Feature::class, 'post_feature');
+    }
+
+    public static function generateUniqueCode($length = 6)
+    {
+        do {
+            // Sinh code dạng: TV + 6 ký tự chữ số/chữ cái viết hoa
+            $code = 'TV'.strtoupper(Str::random($length));
+        } while (self::where('code', $code)->exists());
+
+        return $code;
     }
 }

@@ -331,11 +331,22 @@ return [
             'text' => 'Quản lý người dùng',
             'url' => 'admin/users',
             'icon' => 'fas fa-fw fa-user',
+            'can' => 'manage-users',
         ],
         [
             'text' => 'Quản lý bài viết',
-            'url' => 'admin/posts',
             'icon' => 'fas fa-fw fa-podcast',
+            'submenu' => [
+                [
+                    'text' => 'Danh sách bài viết',
+                    'url' => 'admin/posts',
+                ],
+                [
+                    'text' => 'Tạo bài viết',
+                    'url' => 'admin/posts/create',
+                ],
+            ],
+            'can' => 'manage-posts',
         ],
         ['header' => 'account_settings'],
         [
