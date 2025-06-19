@@ -9,9 +9,11 @@
 @section('content')
     <div class="d-flex justify-content-between mb-3">
         <a href="{{ route('admin.users.create') }}" class="btn btn-primary">+ Thêm người dùng</a>
-        <a href="{{ route('admin.users.export', request()->query()) }}" class="btn btn-success">
-            <i class="fas fa-file-excel"></i> Xuất Excel
-        </a>
+        @can('admin')
+            <a href="{{ route('admin.users.export', request()->query()) }}" class="btn btn-success">
+                <i class="fas fa-file-excel"></i> Xuất Excel
+            </a>
+        @endcan
     </div>
 
     <form method="GET" action="{{ route('admin.users.index') }}" class="mb-3">
@@ -69,12 +71,14 @@
                                 <i class="fas fa-eye"></i> Xem
                             </a>
                             <a href="{{ route('admin.users.edit', $user) }}" class="btn btn-warning btn-sm">Sửa</a>
-                            <form action="{{ route('admin.users.destroy', $user) }}" method="POST"
-                                style="display:inline-block;">
-                                @csrf @method('DELETE')
-                                <button class="btn btn-danger btn-sm"
-                                    onclick="return confirm('Xoá người dùng này?')">Xoá</button>
-                            </form>
+                            @can('admin')
+                                <form action="{{ route('admin.users.destroy', $user) }}" method="POST"
+                                    style="display:inline-block;">
+                                    @csrf @method('DELETE')
+                                    <button class="btn btn-danger btn-sm"
+                                        onclick="return confirm('Xoá người dùng này?')">Xoá</button>
+                                </form>
+                            @endcan
                         @endif
                     </td>
                 </tr>

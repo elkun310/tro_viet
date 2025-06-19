@@ -22,14 +22,16 @@ Route::middleware('auth')->group(function () {
 
 require __DIR__.'/auth.php';
 
-Route::prefix('admin')->middleware(['auth', 'role:admin'])->name('admin.')->group(function () {
+Route::prefix('admin')->middleware(['auth', 'role:admin,host'])->name('admin.')->group(function () {
     // Trang dashboard
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
-    // CRUD user
-    Route::get('/users/export', [UserController::class, 'export'])->name('users.export');
-    Route::post('/users/{id}/restore', [UserController::class, 'restore'])->name('users.restore');
-    Route::resource('users', UserController::class)->names('users');
+    Route::middleware(['auth', 'role:admin'])->group(function () {
+        // CRUD user
+        Route::get('/users/export', [UserController::class, 'export'])->name('users.export');
+        Route::post('/users/{id}/restore', [UserController::class, 'restore'])->name('users.restore');
+        Route::resource('users', UserController::class)->names('users');
+    });
 
     Route::post('posts/upload-image', [PostController::class, 'uploadImage'])->name('posts.upload-image');
     Route::post('posts/delete-image', [PostController::class, 'deleteImage'])->name('posts.delete-image');

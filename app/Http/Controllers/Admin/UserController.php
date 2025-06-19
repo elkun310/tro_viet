@@ -27,13 +27,14 @@ class UserController extends Controller
                 $query->where('role', $role);
             })
             ->orderByDesc('id')
-            ->paginate(config('constants.PAGINATE'), ["*"], 'page');
+            ->paginate(config('constants.PAGINATE'), ['*'], 'page');
 
         if ($request->has('page')) {
             if (intval($request->get('page')) > $users->lastPage() && $users->lastPage() > 0) {
                 return redirect($users->url(1))->withInput();
             }
         }
+
         return view('admin.users.index', compact('users'));
     }
 
@@ -76,7 +77,7 @@ class UserController extends Controller
     {
         $data = $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email,' . $user->id,
+            'email' => 'required|email|unique:users,email,'.$user->id,
             'password' => 'nullable|string|min:6|confirmed',
             'role' => 'required|in:admin,host,user',
         ]);

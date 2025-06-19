@@ -87,7 +87,7 @@ class Post extends Model
     {
         do {
             // Sinh code dạng: TV + 6 ký tự chữ số/chữ cái viết hoa
-            $code = 'TV' . strtoupper(Str::random($length));
+            $code = 'TV'.strtoupper(Str::random($length));
         } while (self::where('code', $code)->exists());
 
         return $code;

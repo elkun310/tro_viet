@@ -331,6 +331,7 @@ return [
             'text' => 'Quản lý người dùng',
             'url' => 'admin/users',
             'icon' => 'fas fa-fw fa-user',
+            'can' => 'manage-users',
         ],
         [
             'text' => 'Quản lý bài viết',
@@ -345,6 +346,7 @@ return [
                     'url' => 'admin/posts/create',
                 ],
             ],
+            'can' => 'manage-posts',
         ],
         ['header' => 'account_settings'],
         [
